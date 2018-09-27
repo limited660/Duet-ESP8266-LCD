@@ -1,0 +1,323 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
+
+
+// WiFi Parameters
+const char* ssid = "xxx";
+const char* password = "xxx";
+
+  float coords_machine0;
+  float coords_machine1;
+  float coords_machine2;
+  const char* name;
+  const char* firmwareName;
+  float vin_min;
+  float vin_cur;
+  float vin_max;
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting...");
+  }
+
+
+
+}
+
+void loop() {
+  // Check WiFi Status
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;  //Object of class HTTPClient
+
+
+    //JSON Request Status Type #1
+    http.begin("http://192.168.1.18/rr_status?type=1");
+    int httpCode = http.GET();
+    Serial.print("HTTP Code: ");
+    Serial.println(httpCode);
+    //Check the returning code                                                                  
+    if (httpCode > 0) {
+      // Parsing
+      const size_t bufferSize = 7*JSON_ARRAY_SIZE(1) + 3*JSON_ARRAY_SIZE(3) + 2*JSON_ARRAY_SIZE(8) + JSON_ARRAY_SIZE(9) + 4*JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(4) + 2*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(9) + 450;
+      DynamicJsonBuffer jsonBuffer(bufferSize);
+      JsonObject& root = jsonBuffer.parseObject(http.getString());
+      
+      // Parameters
+      const char* status = root["status"]; // "I"
+      
+      JsonObject& coords = root["coords"];
+        JsonArray& coords_axesHomed = coords["axesHomed"];
+          int coords_axesHomed0 = coords_axesHomed[0]; // 0
+          int coords_axesHomed1 = coords_axesHomed[1]; // 0
+          int coords_axesHomed2 = coords_axesHomed[2]; // 0
+        
+        JsonArray& coords_xyz = coords["xyz"];
+          int coords_xyz0 = coords_xyz[0]; // 0
+          int coords_xyz1 = coords_xyz[1]; // 0
+          int coords_xyz2 = coords_xyz[2]; // 0
+        
+        JsonArray& coords_machine = coords["machine"];
+          coords_machine0 = coords_machine[0]; // 0
+          coords_machine1 = coords_machine[1]; // 0
+          coords_machine2 = coords_machine[2]; // 0
+        
+        int coords_extr0 = coords["extr"][0]; // 0
+      
+      int speeds_requested = root["speeds"]["requested"]; // 0
+      int speeds_top = root["speeds"]["top"]; // 0
+      
+      int currentTool = root["currentTool"]; // 0
+      
+      JsonObject& params = root["params"];
+        int params_atxPower = params["atxPower"]; // 0
+      
+      JsonArray& params_fanPercent = params["fanPercent"];
+        int params_fanPercent0 = params_fanPercent[0]; // 0
+        int params_fanPercent1 = params_fanPercent[1]; // 100
+        int params_fanPercent2 = params_fanPercent[2]; // 0
+        int params_fanPercent3 = params_fanPercent[3]; // 0
+      
+      int params_speedFactor = params["speedFactor"]; // 100
+      
+      int params_extrFactors0 = params["extrFactors"][0]; // 100
+      
+      int params_babystep = params["babystep"]; // 0
+      
+      int seq = root["seq"]; // 0
+      
+      int sensors_probeValue = root["sensors"]["probeValue"]; // 0
+      int sensors_fanRPM = root["sensors"]["fanRPM"]; // 0
+      
+      JsonObject& temps = root["temps"];
+      
+      JsonObject& temps_bed = temps["bed"];
+        int temps_bed_current = temps_bed["current"]; // 23
+        int temps_bed_active = temps_bed["active"]; // 0
+        int temps_bed_state = temps_bed["state"]; // 0
+        int temps_bed_heater = temps_bed["heater"]; // 0
+      
+      JsonArray& temps_current = temps["current"];
+        int temps_current0 = temps_current[0]; // 23
+        float temps_current1 = temps_current[1]; // 23.2
+        int temps_current2 = temps_current[2]; // 2000
+        int temps_current3 = temps_current[3]; // 2000
+      
+      JsonArray& temps_state = temps["state"];
+        int temps_state0 = temps_state[0]; // 0
+        int temps_state1 = temps_state[1]; // 2
+        int temps_state2 = temps_state[2]; // 0
+        int temps_state3 = temps_state[3]; // 0
+      
+      int temps_tools_active00 = temps["tools"]["active"][0][0]; // 0
+      
+      int temps_tools_standby00 = temps["tools"]["standby"][0][0]; // 0
+      
+      const char* temps_extra0_name = temps["extra"][0]["name"]; // "MCU"
+      float temps_extra0_temp = temps["extra"][0]["temp"]; // 34.2
+      
+      int time = root["time"]; // 982
+
+      http.end();   //Close Status Type #1 Connection
+
+    }
+    
+
+
+
+    //JSON Request Status Type #2
+    http.begin("http://192.168.1.18/rr_status?type=2");
+    httpCode = http.GET();
+    //Check the returning code                                                                  
+    if (httpCode > 0) {
+      // Parsing
+      const size_t bufferSize = 12*JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(2) + 4*JSON_ARRAY_SIZE(3) + 3*JSON_ARRAY_SIZE(8) + 2*JSON_ARRAY_SIZE(9) + 4*JSON_OBJECT_SIZE(2) + 3*JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(4) + 2*JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(7) + JSON_OBJECT_SIZE(27) + 1000;
+      DynamicJsonBuffer jsonBuffer(bufferSize);
+      JsonObject& root = jsonBuffer.parseObject(http.getString());
+      
+      //Parameters
+      const char* status = root["status"]; // "I"
+      
+      JsonObject& coords = root["coords"];
+        
+        JsonArray& coords_axesHomed = coords["axesHomed"];
+          int coords_axesHomed0 = coords_axesHomed[0]; // 1
+          int coords_axesHomed1 = coords_axesHomed[1]; // 1
+          int coords_axesHomed2 = coords_axesHomed[2]; // 1
+        
+        JsonArray& coords_xyz = coords["xyz"];
+          float coords_xyz0 = coords_xyz[0]; // 141
+          float coords_xyz1 = coords_xyz[1]; // 128.337
+          float coords_xyz2 = coords_xyz[2]; // 9.5
+        
+        JsonArray& coords_machine = coords["machine"];
+          coords_machine0 = coords_machine[0]; // 141
+          coords_machine1 = coords_machine[1]; // 128.337
+          coords_machine2 = coords_machine[2]; // 9.5
+        
+        int coords_extr0 = coords["extr"][0]; // 0
+      
+      int speeds_requested = root["speeds"]["requested"]; // 0
+      int speeds_top = root["speeds"]["top"]; // 0
+      
+      int currentTool = root["currentTool"]; // 0
+      
+      JsonObject& params = root["params"];
+        int params_atxPower = params["atxPower"]; // 0
+      
+      JsonArray& params_fanPercent = params["fanPercent"];
+        int params_fanPercent0 = params_fanPercent[0]; // 0
+        int params_fanPercent1 = params_fanPercent[1]; // 100
+        int params_fanPercent2 = params_fanPercent[2]; // 0
+        int params_fanPercent3 = params_fanPercent[3]; // 0
+      
+      JsonArray& params_fanNames = params["fanNames"];
+        const char* params_fanNames0 = params_fanNames[0]; // ""
+        const char* params_fanNames1 = params_fanNames[1]; // ""
+        const char* params_fanNames2 = params_fanNames[2]; // ""
+        const char* params_fanNames3 = params_fanNames[3]; // ""
+      
+      int params_speedFactor = params["speedFactor"]; // 100
+      
+      int params_extrFactors0 = params["extrFactors"][0]; // 100
+      
+      int params_babystep = params["babystep"]; // 0
+      
+      long seq = root["seq"]; // 39444
+      
+      int sensors_probeValue = root["sensors"]["probeValue"]; // 0
+      int sensors_fanRPM = root["sensors"]["fanRPM"]; // 0
+      
+      JsonObject& temps = root["temps"];
+      
+      JsonObject& temps_bed = temps["bed"];
+        float temps_bed_current = temps_bed["current"]; // 23.5
+        int temps_bed_active = temps_bed["active"]; // 0
+        int temps_bed_state = temps_bed["state"]; // 0
+        int temps_bed_heater = temps_bed["heater"]; // 0
+      
+      JsonArray& temps_current = temps["current"];
+        float temps_current0 = temps_current[0]; // 23.5
+        float temps_current1 = temps_current[1]; // 23.7
+        int temps_current2 = temps_current[2]; // 2000
+        int temps_current3 = temps_current[3]; // 2000
+      
+      JsonArray& temps_state = temps["state"];
+        int temps_state0 = temps_state[0]; // 0
+        int temps_state1 = temps_state[1]; // 2
+        int temps_state2 = temps_state[2]; // 0
+        int temps_state3 = temps_state[3]; // 0
+      
+      JsonArray& temps_names = temps["names"];
+        const char* temps_names0 = temps_names[0]; // ""
+        const char* temps_names1 = temps_names[1]; // ""
+        const char* temps_names2 = temps_names[2]; // ""
+        const char* temps_names3 = temps_names[3]; // ""
+      
+      int temps_tools_active00 = temps["tools"]["active"][0][0]; // 0
+      
+      int temps_tools_standby00 = temps["tools"]["standby"][0][0]; // 0
+      
+      const char* temps_extra0_name = temps["extra"][0]["name"]; // "MCU"
+      float temps_extra0_temp = temps["extra"][0]["temp"]; // 35.2
+      
+      int time = root["time"]; // 11293
+      int coldExtrudeTemp = root["coldExtrudeTemp"]; // 160
+      int coldRetractTemp = root["coldRetractTemp"]; // 90
+      const char* compensation = root["compensation"]; // "None"
+      int controllableFans = root["controllableFans"]; // 5
+      int tempLimit = root["tempLimit"]; // 290
+      int endstops = root["endstops"]; // 4088
+      firmwareName = root["firmwareName"]; // "RepRapFirmware for Duet 2 WiFi/Ethernet"
+      const char* geometry = root["geometry"]; // "cartesian"
+      int axes = root["axes"]; // 3
+      int totalAxes = root["totalAxes"]; // 3
+      const char* axisNames = root["axisNames"]; // "XYZ"
+      int volumes = root["volumes"]; // 2
+      int mountedVolumes = root["mountedVolumes"]; // 1
+      name = root["name"]; // "Black Widow"
+      
+      JsonObject& probe = root["probe"];
+        int probe_threshold = probe["threshold"]; // 25
+        float probe_height = probe["height"]; // -0.1
+        int probe_type = probe["type"]; // 8
+      
+      JsonObject& tools0 = root["tools"][0];
+        int tools0_number = tools0["number"]; // 0
+      
+      int tools0_heaters0 = tools0["heaters"][0]; // 1
+      
+      int tools0_drives0 = tools0["drives"][0]; // 0
+      
+      int tools0_axisMap00 = tools0["axisMap"][0][0]; // 0
+      
+      int tools0_axisMap10 = tools0["axisMap"][1][0]; // 1
+      
+      int tools0_fans = tools0["fans"]; // 4
+      const char* tools0_filament = tools0["filament"]; // ""
+      
+      JsonArray& tools0_offsets = tools0["offsets"];
+        int tools0_offsets0 = tools0_offsets[0]; // 0
+        int tools0_offsets1 = tools0_offsets[1]; // 0
+        int tools0_offsets2 = tools0_offsets[2]; // 0
+      
+      JsonObject& mcutemp = root["mcutemp"];
+        float mcutemp_min = mcutemp["min"]; // 27.7
+        float mcutemp_cur = mcutemp["cur"]; // 35.2
+        float mcutemp_max = mcutemp["max"]; // 35.8
+      
+      JsonObject& vin = root["vin"];
+        vin_min = vin["min"]; // 24
+        vin_cur = vin["cur"]; // 24.3
+        vin_max = vin["max"]; // 24.4
+
+      http.end();   //Close Status Type #2 Connection
+    }
+    
+  
+
+        // Output to serial monitor
+      Serial.print("X Pos: ");
+      Serial.println(coords_machine0);
+      Serial.print("Y Pos: ");
+      Serial.println(coords_machine1);
+      Serial.print("Z Pos: "); 
+      Serial.println(coords_machine2);
+      Serial.print("Name: "); 
+      Serial.println(name);
+      Serial.print("Firmware: "); 
+      Serial.println(firmwareName);
+      Serial.print("Current Voltage: "); 
+      Serial.println(vin_cur);
+      Serial.print("Max Voltage: "); 
+      Serial.println(vin_max);
+      Serial.print("Min Voltage: "); 
+      Serial.println(vin_min);
+
+      
+      Serial.println();
+
+  
+  // Delay
+        if (coords_machine0 == 140.0){  
+        Serial.println("FAN ON");
+          http.begin("http://192.168.1.18/rr_gcode?gcode=M106S255");
+          int httpCode = http.GET();
+          Serial.println(httpCode);   //Print HTTP return code
+          http.end();  //Close connection
+      }
+      else {
+          Serial.println("FAN OFF");
+          http.begin("http://192.168.1.18/rr_gcode?gcode=M106S00");
+          int httpCode = http.GET();
+          Serial.println(httpCode);   //Print HTTP return code
+          http.end();  //Close connection
+      }
+
+}
+  delay(5000);
+}
